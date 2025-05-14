@@ -14,9 +14,9 @@ I think that (8) could be lumped into (9) with just a few sentences (e.g. `We ar
 
 A few ways I see to make this more compact.
 
-1. Section 2.1: In principle, this passage could be omitted. It is the kind of thing that you might just provide a nice reference to (e.g. an overview of sequent calculi). You explain how to read the weakening and contraction in the next subsection in any case.
-2. In Section 2.2, I would omit the reading of the rules and instead explain the connectives. In principle, this will shorten the presentation. It might be more concise (and informative) to give the grammar of iLL. Isn't the lollipop just the usual intuitionistic implication?
-3. In the definition of DC, it might be helpful to carry out the construction in Set and then only later explain that it works in any category with finite limits. (You seem to assume this immediately in any case)
+<s>1. Section 2.1: In principle, this passage could be omitted. It is the kind of thing that you might just provide a nice reference to (e.g. an overview of sequent calculi). You explain how to read the weakening and contraction in the next subsection in any case.</s>
+<s>2. In Section 2.2, I would omit the reading of the rules and instead explain the connectives. In principle, this will shorten the presentation. It might be more concise (and informative) to give the grammar of iLL. Isn't the lollipop just the usual intuitionistic implication?</s>
+<s>3. In the definition of DC, it might be helpful to carry out the construction in Set and then only later explain that it works in any category with finite limits. (You seem to assume this immediately in any case)</s>
 4. Section 3.2: You might focus explicitly on one of the four constructions and then explain how the other connectives are modeled only briefly (e.g. along the lines of 3.2.0)
 5. Theorem 1. I would not provide the full proof. Instead, I would explain that it is by induction on the structure of derivations and then *maybe* explain the inductive step corresponding to the connective you chose in point 4 above. I guess the converse (completeness) is actually much harder if it is true. Theorem 1 basically says that Dialectica categories are sound for iLL.
 6. Hardcore type theorists might scoff at "are elements of" on l.130
