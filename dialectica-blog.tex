@@ -1,7 +1,5 @@
 \documentclass[a4paper]{article}
-\usepackage{lineno}    %comment out to remove line numbers
-\linenumbers                %comment out to remove line numbers
-\usepackage[style=authoryear-ibid,backend=biber]{biblatex}
+\usepackage[style=numeric,backend=biber]{biblatex}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
@@ -9,6 +7,7 @@
 \usepackage{stmaryrd}
 \usepackage{mathpartir}
 \usepackage{fullpage}
+\usepackage{todonotes}
 
 \addbibresource{dialectica-references.bib}
 
@@ -25,47 +24,35 @@
 \DeclareMathOperator{\ob}{ob}
 
 \newtheorem{theorem}{Theorem}
+\newtheorem{remark}{Remark}
+\newtheorem{definition}{Definition}
 
 \begin{document}
 
 \section{Introduction}
 In this blog post, we provide an overview of the \emph{Dialectica categories} and explore their connection to \Bel{}, the category of \emph{backward error lenses}.
 \begin{itemize}
-    \item Developed by \cite{de1991dialectica}, the Dialectica categories are categorical models of intuitionistic linear logic. Fixing a base category \C, we can construct a Dialectica category, abbreviated \DC{}, such that logical formulas can be interpreted as objects in \DC{} and deductions can be interpreted as morphisms. 
-    \item The objects of \DC{} are (set-theoretic) \emph{relations} on objects from \C.
-    \item The morphisms in \DC{} are pairs of morphisms in \C{} satisfying a certain condition. This category is one of the earliest examples of \emph{lenses}, a data accessor structure we see in functional programming.
+    \item Introduced by de Paiva \cite{de1991dialectica}, the Dialectica categories are categorical models of intuitionistic linear logic. From a base category \C, we can construct a Dialectica category, abbreviated \DC{}, such that logical formulas are interpreted as objects in \DC{} and judgments are interpreted as morphisms. 
+    \item The objects of \DC{} are internal binary \emph{relations} on \C.
+    \item The morphisms in \DC{} are pairs of morphisms in \C{} satisfying a certain condition. These morphisms are one of the earliest examples of \emph{lenses}, a data accessor structure we see in functional programming.
 \end{itemize} 
 
-Our goal is to use the Dialectica categories to inform our construction of a similar category, \Bel, from \cite{kellison2025bean}.
+Our goal is to use the Dialectica categories to inform our construction of a similar category, \Bel, introduced by Kellison et al. \cite{kellison2025bean}.
 \begin{itemize}
-    \item \Bel{} is the category used to interpret a linear type system, \Bean{}, which synthesizes bounds on roundoff error for numerical programs. We show soundness of these error bounds by interpreting \Bean{} typing judgments as morphisms in \textbf{Bel}.
-    \item The objects of \Bel{} are metric spaces, which may be rewritten as families of relations on a set.
+    \item \Bel{} is the category used to interpret a linear type system, \Bean{}, which derives bounds on roundoff error in numerical programs. We show soundness of these error bounds by interpreting \Bean{} typing judgments as morphisms in \textbf{Bel}.
+    \item The objects of \Bel{} are similar to metric spaces, and may be rewritten as families of relations on a set.
     \item The morphisms in \Bel{} are triples of functions reminiscent of lenses. 
 \end{itemize}
 Sound familiar? We thought so. Now, we're going to introduce linear logic and the categories \DC{}, and compare them to \Bean{} and the category \Bel{}.
 
-% Question: can we define Bel in terms of relations, which may facilitate the interpretation of Bean? Problem: what are we supposed to do with the discrete spaces \(\Phi\)?
-
 \section{Linear logic}
-\subsection{Deductive logic}
-A deductive logic is just a set of \emph{axioms} and \emph{inference rules} which tell you how to write down \emph{deductions}. An axiom looks like this:
-\begin{mathpar}
-    \inferrule*[]
-    { }
-    {\Gamma,A\vdash A}
-\end{mathpar}
-To the left of $\vdash$ is the \emph{context}, the set of logical formulas that we are given. Here, $\Gamma$ is a set of formulas, $A$ is a single formula, and $\Gamma,A$ combines them. To the right of $\vdash$ is the conclusion, $A$. The $\vdash$ means ``proves.'' So, this axiom says: ``Given $\Gamma$ and $A$, we can prove $A$.'' This seems pretty self-evident, which is why it's an axiom.
+The Dialectica categories model (intuitionistic) \emph{linear logic}, which we will define as a system of natural deduction \cite{nlab:natural_deduction}. Essentially, we prove a \emph{judgment} by applying \emph{inference rules} until we reach \emph{axioms}, or judgments we are allowed to take for granted. The judgment
+\begin{equation*}
+    \Gamma\vdash A
+\end{equation*}
+means ``given the formulas in $\Gamma$, we can prove $A$,'' where $A$ is a logical \emph{formula} and $\Gamma=A_1,\dots,A_n$ is a list of formulas (our \emph{context}). If $\Gamma$ contains $A$, this judgment is trivial, and is in fact an axiom.
 
-An inference rule looks like this:
-\begin{mathpar}
-    \inferrule*[]
-    {\Gamma\vdash A \\ \Delta\vdash B}
-    {\Gamma,\Delta\vdash A\text{ and } B}
-\end{mathpar}
-Here, $\Gamma$ and $\Delta$ are two contexts, and $\Gamma,\Delta$ is a context combining them. The deductions $\Gamma\vdash A$ and $\Delta\vdash B$ above the bar are requirements for deducing $\Gamma,\Delta\vdash A\text{ and } B$. So, this rule says, ``If given $\Gamma$ we can prove $A$, and given $\Delta$ we can prove $B$, then given both $\Gamma$ and $\Delta$, we can prove $A$ and $B$.'' The idea is that any deduction we're able to prove from these rules should be ``valid'' (consistency), and any valid deduction should be provable from these rules (completeness). 
-
-\subsection{Intuitionistic linear logic}
-Linear logic is a \emph{substructural} logic, which means it's missing at least one of the common \emph{structural} rules found in other logics. In this case, linear logic is missing \emph{weakening} and \emph{contraction}.
+Linear logic is a \emph{substructural} logic, which means it's missing some of the common inference rules found in other logics. Specifically, linear logic is missing \emph{weakening} and \emph{contraction}.
 \begin{mathpar}
     \inferrule*[right=(Weakening)]
     {\Gamma\vdash B}
@@ -75,9 +62,11 @@ Linear logic is a \emph{substructural} logic, which means it's missing at least 
     {\Gamma,A,A\vdash B}
     {\Gamma,A\vdash B}
 \end{mathpar}
-Weakening says that if we can prove $B$ from a set of assumptions $\Gamma$, then if we are given even more assumptions, we can still prove $B$. Contraction says that we don't need to use assumptions twice. These rules make sense if we interpret formulas as true statements about the world, e.g. $A$ is ``it is raining'' and $B$ is ``the ground is wet.'' However, in linear logic, we interpret formulas as \emph{finite resources that must be consumed}. So $\Gamma\vdash A$ means ``given exactly all the resources in $\Gamma$, we can produce an $A$.'' Now, weakening and contraction don't make sense. If $\Gamma\vdash B$, then we cannot conclude $\Gamma,\Delta\vdash B$, because $B$ does not need a $\Delta$ to be produced. If $\Gamma,A,A\vdash B$, then $B$ needs two copies of $A$, and we cannot produce $B$ from just one $A$. Linear logic is nice because it can model real-world situations, like chemical reactions and concurrent processes. 
+Weakening says that if we can prove $B$ from a set of assumptions $\Gamma$, then if we are given even more assumptions, we can still prove $B$. Contraction says that we don't need to use assumptions twice. These rules make sense if we interpret formulas as true statements about the world, e.g. $A$ is ``it is raining'' and $B$ is ``the ground is wet.'' 
 
-\emph{Intuitionistic} logic means that we can't assume the law of the excluded middle (for all $A$, either $A$ or not $A$) nor double negation (if not (not $A$), then $A$). In a nutshell, this means all our proofs must be constructive. A deeper overview of the history of linear logic and its broader impact on computer science can be seen in \cite{sep-logic-linear}. For now, consider these four inference rules from intuitionistic linear logic:
+However, in linear logic, we interpret formulas as \emph{finite resources that must be consumed}. So $\Gamma\vdash A$ means ``given exactly all the resources in $\Gamma$, we can produce an $A$.'' Now, weakening and contraction don't make sense. If $\Gamma\vdash B$, then we cannot conclude $\Gamma,\Delta\vdash B$, because $B$ does not consume the resources in $\Delta$. If $\Gamma,A,A\vdash B$, then $B$ consumes exactly two copies of $A$, and we cannot conclude $\Gamma,A\vdash B$. Linear logic is nice because it can model real-world situations, like chemical reactions and concurrent processes. 
+
+To get a sense of linear logic, we display here four of its important inference rules:
 \begin{mathpar}
     \inferrule*[right=($\otimes$ Intro)]
     {\Gamma\vdash A\\\Delta\vdash B}
@@ -95,17 +84,19 @@ Weakening says that if we can prove $B$ from a set of assumptions $\Gamma$, then
     {\Gamma\vdash A}
     {\Gamma\vdash A\oplus B}
 \end{mathpar}
-The first rule, $(\otimes~ \textsc{Intro})$, says that if we have $\Gamma\vdash A$, and $\Delta\vdash B$, then $\Gamma,\Delta\vdash A\text{ ``and'' }B$, where we have enough resources to produce both $A$ and $B$ at the same time.
-Alternatively, $(\&~ \textsc{Intro})$ says that if $\Gamma\vdash A$, and $\Gamma\vdash B$, then $\Gamma\vdash A\text{ ``and'' }B$ in the sense that $\Gamma$ can produce either $A$ or $B$, but not at the same time. This is because we are in linear logic, and $A$ and $B$ each use up all the resources in $\Gamma$. 
-Next, $\multimap$ is the linear logic version of implication. So $(\multimap~ \textsc{Intro})$ says that if we have $\Gamma,A\vdash B$, then if we have $\Gamma$, we just need another $A$ to produce a $B$.
-Finally, $(\oplus~ \textsc{Intro-R})$ says that if $\Gamma\vdash A$, then $\Gamma\vdash A\text{ ``or'' }B$, but we're not necessarily able to produce $B$.  Later, we're going to show how to interpret these rules in our categorical model, \DC{}. 
+The formula $A\otimes B$ asserts that we have the resources to produce both $A$ and $B$. The formula $A~\&~B$ also means we have the resources to produce both $A$ and $B$, but not at the same time. This is because we are in linear logic, and $A$ and $B$ each use up all the resources in $\Gamma$. 
+Next, $A\multimap B$ is logical implication, so if we are given an $A$, we can produce a $B$. 
+Finally, $A\oplus B$ asserts we can produce one of $A$ or $B$, but we don't necessarily know which one. Later, we're going to show how to interpret these rules in our categorical model, \DC{}. 
 
 \section{The Dialectica categories}
 \subsection{The base category \DC}
-Now that we understand the logic that we're trying to model, we will give a construction for the category \DC{} from a category \C{}. This construction is given in Chapter 1 of \cite{de1991dialectica}. Given some category \C{} with finite limits (importantly, finite products and pullbacks), we can construct a category \textbf{DC} as follows.
+Now that we understand the logic we're trying to model, we will give a construction for the category \DC{} from a category \C{}. This construction is given in Chapter 1 of de Paiva \cite{de1991dialectica}. Given some category \C{} with finite limits, we can construct a category \textbf{DC} as follows. 
 \begin{itemize}
-    \item The objects in \textbf{DC} are triples $(U, X,\alpha)$ where $U$ and $X$ are objects in \C{}, and $\alpha$ is a relation on $U\times X$, where $U$ and $X$ are interpreted as sets. What this really means is that $\alpha$ is a \emph{subobject} of the product $U\times X$, but we will stick to the relation terminology.
-    \item The morphisms of \textbf{DC} are pairs of morphisms $(f, F)$, where $f:U\to V$ is a ``forward'' map and $F:U\times Y\to X$ is a ``backward'' map. A morphism from $(U,X,\alpha)$ to $(V,Y,\beta)$ must satisfy the following condition:
+    \item The objects in \textbf{DC} are triples $(U, X,\alpha)$ where $U$ and $X$ are objects in \C{}, and $\alpha$ is a subobject of the product $U\times X$. 
+    \begin{remark}
+        The intuition, which we use throughout this blog post, is that we take \C{} to be \textbf{Set}, and $\alpha$ to be a \emph{binary relation} on the set $U\times X$. Thus, we write $u~\alpha~x$ to mean $(u,x)$ is in the relation $\alpha\subseteq U\times X$.
+    \end{remark}
+    \item The morphisms of \textbf{DC} are pairs of morphisms $(f, F)$, where $f:U\to V$ is called the ``forward'' map and $F:U\times Y\to X$ is called the ``backward'' map. A morphism from $(U,X,\alpha)$ to $(V,Y,\beta)$ must satisfy the following condition:
     \begin{equation*}
         u\ \alpha\ F(u,y)\Rightarrow f(u)\ \beta\ y.
     \end{equation*}
@@ -113,32 +104,33 @@ Now that we understand the logic that we're trying to model, we will give a cons
     \item The composition of morphisms $(f,F):(U,X,\alpha)\to (V,Y,\beta)$ and $(g,G):(V,Y,\beta)\to (W,Z,\gamma)$ is as follows:
     \begin{itemize}
         \item The forward map $U\to W$ is the composition $g\circ f$.
-        \item The backward map $U\times Z\to X$ is composed as follows:
+        \item The backward map $U\times Z\to X$ is as follows:
         \begin{equation*}
             U\times Z\xrightarrow{\Delta\times \id_Z}U\times U\times Z\xrightarrow{\id_U\times f\times \id_Z}U\times V\times Z\xrightarrow{\id_U\times G}U\times Y\xrightarrow{F}X.
         \end{equation*}
-        Here, $\Delta:U\to U\times U$ is the diagonal morphism. So, the backward map is not as nice but it still works.
+        Here, $\Delta:U\to U\times U$ is the diagonal morphism. 
     \end{itemize}
 \end{itemize}
 
 \subsection{More constructions in \DC}
-Given some extra conditions on \C{}, the logical connectives we showed earlier from linear logic have their corresponding operations in \textbf{DC}: 
+Given some extra conditions on \C{}, the linear logic connectives we showed earlier have their corresponding operations in \textbf{DC}: 
 \begin{itemize}
     \item tensor product $\otimes$,
     \item categorical product $\&$,
     \item internal Hom functor $\multimap$ satisfying the following natural isomorphism:
     \begin{equation*}
-        \Hom(\alpha \otimes \beta, \gamma) \cong \Hom(\alpha,\beta\multimap\gamma),
+        \Hom(\alpha,\beta\multimap\gamma)\cong \Hom(\alpha \otimes \beta, \gamma),
     \end{equation*}
     \item and weak coproducts $\oplus$.
 \end{itemize}
+We show constructions for the first three.
 
 \subsubsection{Tensor product}
 The tensor product $\alpha\otimes\beta$ of two relations $(U,X,\alpha)$ and $(V,Y,\beta)$ is a relation $(U \times V,X\times Y,\otimes^\alpha_\beta)$ where 
 \begin{equation*}
     (u,v)\otimes^\alpha_\beta (x,y)\text{ if } u\ \alpha\ x\text{ and } v\ \beta\ y.
 \end{equation*}
-We can also easily define $(f,F)\otimes (g,G)$ as $(f\times g, F\times G)$, so $\otimes$ is a bifunctor. 
+We can easily define $(f,F)\otimes (g,G)$ as $(f\times g, F\times G)$, so $\otimes$ is a bifunctor. 
 
 The tensor product is not a categorical product because we don't know how to define projections. To define a projection 
 \begin{equation*}
@@ -149,7 +141,7 @@ We similarly don't have a diagonal morphism
 \begin{equation*}
     (U,X,\alpha)\to (U,X,\alpha)\otimes (U,X,\alpha).
 \end{equation*}
-We would need a backward map $F:U\times (X\times X)\to X$, and if we pick either canonical projection, we don't satisfy the condition on morphisms. 
+We would need a backward map $F:U\times (X\times X)\to X$, and if we pick either canonical projection, we wouldn't satisfy the condition on morphisms. 
 
 \subsubsection{Categorical product}
 If \C{} has stable and disjoint coproducts, we can define the categorical product $\alpha \ \&\ \beta$ as a relation $(U\times V, X+Y,\&^\alpha_\beta)$ where
@@ -164,7 +156,7 @@ We \emph{can} define projections for $\alpha\ \&\ \beta$. To define a projection
 \begin{equation*}
     (U\times V,X+Y,\&^\alpha_\beta)\to(U,X,\alpha),
 \end{equation*}
-we can simply take the backward map $F:(U\times V)\times X\to X+Y$ to be the projection onto $X$ then the inclusion into $X+Y$. We can also prove that the universal property holds for $\alpha\ \&\ \beta$.
+we can simply take the backward map $F:(U\times V)\times X\to X+Y$ to be the projection onto $X$ then the inclusion into $X+Y$. We can also prove that the universal property of products holds for $\alpha\ \&\ \beta$.
 
 \subsubsection{Internal Hom functor}
 If \C{} is locally Cartesian closed, given two relations $(V, Y,\beta)$ and $(W,Z,\gamma)$, we define their internal Hom object $\beta\multimap\gamma$ as a relation
@@ -175,49 +167,26 @@ which represents the set of morphisms between $(V,Y,\beta)$ and $(W,Z,\gamma)$. 
 \begin{equation*}
     (f,F) \multimap^\beta_\gamma (v,z)\text{ if } v\ \beta\ F(v,z)\Rightarrow f(v)\ \gamma\ z.
 \end{equation*}
-Note that this relation encodes the condition on morphisms in \DC{}.
-
-\subsubsection{Weak coproduct}
-Finally, we can define the weak coproduct $\alpha\oplus\beta$ as a relation $(U+V,X^U\times Y^V,\oplus^\alpha_\beta)$ where
-\begin{equation*}
-    w\oplus^\alpha_\beta (f,g)\text{ if }
-    \begin{cases}
-        w\ \alpha\ f(w) & w\in U \\
-        w\ \beta\ g(w) & w\in V.
-    \end{cases}
-\end{equation*}
-We can easy define canonical injections into the weak coproduct.
+Note that this relation encodes the condition on morphisms.
 
 \section{Interpretation of linear logic into DC}
 
-First, fix an interpretation function $\denot{\cdot}$, which takes logical formulas to objects in \DC.
-Looking back at our logical rules, $\Gamma$ is a finite collection of logical formulas $A_1,\dots,A_n$. We interpret $\Gamma$ as:
+Now, we are ready to show that \DC{} is a categorical model of linear logic. 
+
+\subsection{Inductive construction}
+First, fix an interpretation function $\denot{\cdot}$ which takes atomic propositions to objects in \DC. The interpretation function is then extended to formulas and maps the logical connectives to their corresponding constructions in \DC.
+A context $\Gamma=A_1,\dots,A_n$ is interpreted as
 \begin{equation*}
     \denot\Gamma=\denot{A_1}\otimes\dots\otimes\denot{A_n}.
 \end{equation*}
-Furthermore, this interpretation function maps the logical connectives to their corresponding operations in \DC. We assume \C{} has finite limits, stable and disjoint coproducts, and is locally Cartesian closed. Now, we can prove the following theorem:
+Now, we can prove the following theorem:
 
 \begin{theorem}
-If $\Gamma\vdash A$ in intuitionistic linear logic, then there exists a morphism in \textbf{DC} $(f, F):\denot\Gamma\to\denot A$.
+If we can derive $\Gamma\vdash A$ in linear logic, then we can build a morphism in \textbf{DC} from $\denot\Gamma\to\denot A$.
 \end{theorem}
 \begin{proof}
-    We perform induction on the derivation of $\Gamma\vdash A$ using the inference rules of linear logic. We consider the last inference rule applied and show the cases for the four inference rules given above.
+    We perform induction on the derivation of $\Gamma\vdash A$ using the inference rules of linear logic. We consider the last inference rule applied and show a representative case.
     \begin{description}
-        \item[Case ($\otimes$ Intro).]  Suppose we applied the rule
-        \begin{mathpar}
-            \inferrule*[right=($\otimes$ Intro)]
-            {\Gamma\vdash A\\\Delta\vdash B}
-            {\Gamma,\Delta\vdash A\otimes B}
-        \end{mathpar} 
-        By the inductive hypothesis, we have morphisms
-        \begin{equation*}
-            (f,F):\denot{\Gamma}\to\denot A\text{ and }(g,G):\denot\Delta\to \denot B.
-        \end{equation*}
-        As $\otimes$ is a bifunctor, we simply take our final morphism to be
-        \begin{equation*}
-            (f,F)\otimes(g,G):\denot\Gamma\otimes\denot\Delta\to \denot A\otimes\denot B.
-        \end{equation*}
-        
         \item[Case ($\&$ Intro)] Suppose we applied the rule
         \begin{mathpar}
             \inferrule*[right=($\&$ Intro)]
@@ -230,140 +199,143 @@ If $\Gamma\vdash A$ in intuitionistic linear logic, then there exists a morphism
         \end{equation*}
         By the universal property of $\&$, there exists a morphism
         \begin{equation*}
-            \langle (f, F),(g,G)\rangle:\denot\Gamma\to\denot A\ \&\ \denot B.
+            \langle (f, F),(g,G)\rangle:\denot\Gamma\to\denot A\ \&\ \denot B.\qedhere
         \end{equation*}
-    
-        \item[Case ($\multimap$ Intro)] Suppose we applied the rule 
-        \begin{mathpar}
-            \inferrule*[right=($\multimap$ Intro)]
-            {\Gamma, A\vdash B}
-            {\Gamma\vdash A\multimap B}
-        \end{mathpar} 
-        By the inductive hypothesis, we have a morphism
-        \begin{equation*}
-            (f,F):\denot{\Gamma}\otimes\denot A\to\denot B.
-        \end{equation*}
-        As \DC{} is monoidal closed with respect to the internal Hom functor $\multimap$, there exists a morphism
-        \begin{equation*}
-            (g,G):\denot\Gamma\to \denot A\multimap\denot B.
-        \end{equation*}
-
-        \item[Case ($\otimes$ Intro-R)] Suppose we applied the rule 
-        \begin{mathpar}
-            \inferrule*[right=($\oplus$ Intro-R)]
-            {\Gamma\vdash A}
-            {\Gamma\vdash A\oplus B}
-        \end{mathpar}
-        By the inductive hypothesis, we have a morphism
-        \begin{equation*}
-            (f,F):\denot\Gamma\to\denot A.
-        \end{equation*}
-        We take our final morphism to be 
-        \begin{equation*}
-            i_1\circ (f,F):\denot\Gamma\to \denot A\oplus\denot B
-        \end{equation*}
-        where $i_1$ is the canonical inclusion. \qedhere
     \end{description}
 \end{proof}
-So, what does it mean to have a categorical model of linear logic? Well, in general, having a model shows that a logic is consistent, in that you can't derive a contradiction from the logic. You can also use a model to prove that a particular formula is not derivable in a logic. A categorical model also captures proofs as morphisms. Now, we can look at proofs more closely---maybe two proofs are interpreted as the same morphism, so we can consider them the same proof. In our case, we're more interested in the \DC{} category itself. 
+
+\subsection{Discussion}
+What does it mean to have a categorical model of linear logic? In general, having a model shows that a logic is consistent, in that you can't derive a contradiction from the inference rules. You can also use a model to prove that a particular formula is not derivable in a logic. A categorical model is especially useful as it captures proofs as morphisms. Now, we can look at proofs more closely---maybe two proofs are interpreted as the same morphism, so we can consider them the same proof. 
+
+In our case, however, we're more interested in the construction of \DC{} itself. As we briefly mentioned in the introduction, we are developing \Bel{}, the category of backward error lenses, which resembles \DC{} in many ways. A lens is essentially a pair of morphisms, ``get'' and ``put,'' much like the forward and backward maps of \DC{} \cite{nlab:lens}. In \Bel{}, as in most lens categories, it is unclear how to define products and the internal Hom functor. Thus, we hope that by reframing \Bel{} to look like \DC{}, we can reproduce these constructions. 
 
 \section{The \Bean{} type system}
+Now, we switch gears and talk about the \Bean{} type system, for which \Bel{} serves as a categorical model. Both \Bean{} and \Bel{} were developed by Kellison et al. \cite{kellison2025bean}. We will explore the ways that \Bean{} resembles linear logic. 
+
 \subsection{Type systems}
-A type system is just like a deductive logic, except it tells you how to construct a valid \emph{program} and give it a \emph{type}. Rather than formulas $A$, we have variables $x$ and $y$, and programs which use variables, like $\add{x}{y}$. We also have \emph{types}, like $\R$, which we give to variables and programs. In \Bean{}, a context $\Gamma$ is a set of variables and their types. Now, as an example, the \emph{typing judgment}
+A type system is just like a deductive logic, except it tells you how to construct a valid \emph{program} and give it a \emph{type}. Rather than formulas $A$, we have programs which use variables, like $\add{x}{y}$. We also have types $\tau$ which we give to variables and programs using a colon, like $x:\tau$. Our base type is $\R$, which represents the real numbers, but we can form more complex types like $\R\otimes \R$, representing $\R^2$.
+
+A context $\Gamma=x_1:\tau_1,\dots,x_n:\tau_n$ is a finite set of variables and their types. As an example, the \emph{typing judgment}
 \begin{equation*}
     \Gamma,x:\R,y:\R\vdash \add{x}{y}:\R
 \end{equation*}
-means that if $x$ and $y$ are variables of type (are elements of) $\R$ in our context, then the program $\add{x}{y}$ also has type $\R$. We apply rules from our type system to derive such a judgment and prove our program is well-formed.
+means that if $x$ and $y$ are variables of type $\R$ in our context, then the program $\add{x}{y}$ also has type $\R$. We apply rules from our type system to derive such a judgment and prove our program is well-formed. Additionally, given a \Bean{} program, we want to be able to algorithmically come up with its typing derivation, a process known as \emph{type checking}.
 
 \subsection{Backward error and \Bean}
-The purpose of \Bean{} is to write numerical programs and determine their \emph{roundoff error}, also called floating-point error. This is the error that accumulates every time a computer rounds an exact answer to the nearest representable floating-point number. In \Bean{}, we track a quantity known as \emph{backward error}. Essentially, if $f$ is a function, and $\tilde{f}$ is a program which approximates $f$, then the backward error of $\tilde{f}$ with respect to an input $x$ is the difference between $x$ and another input $\tilde{x}$ (known as the witness) such that $\tilde{f}(x)=f(\tilde{x})$. We use \emph{annotations} in the context to keep track of this backward error. For example, here is one of \Bean{}'s typing rules:
+\Bean{} determines \emph{roundoff error}, also called floating-point error, for numerical programs. This is the error that accumulates every time a computer rounds an exact answer to the nearest representable floating-point number. In \Bean{}, we bound a quantity known as \emph{backward error}. 
+\begin{definition}
+    Let $f$ be a function with input $x$ and $\tilde{f}$ a program which approximates $f$. The backward error of $\tilde{f}$ with respect to $x$ is the distance $d(x,\tilde{x})$ between $x$ and another input $\tilde{x}$ (known as the \emph{witness}) such that $\tilde{f}(x)=f(\tilde{x})$.
+\end{definition}
+We use \emph{annotations} in the context to keep track of this backward error. For example, here is one of \Bean{}'s typing rules:
 \begin{mathpar}
     \inferrule*[right=(Add)]
     { }
     {\Gamma,x:_\varepsilon\R,y:_\varepsilon\R\vdash \add{x}{y}:\R}
 \end{mathpar}
-It says that for the program $\add{x}{y}$, the backward error with respect to $x$ and $y$ is $\varepsilon$, where $\varepsilon$ is a small quantity known as \emph{unit roundoff} (specific to a machine's floating-point format). Thus, there exist real numbers $\tilde{x},\tilde{y}$, where the difference between $x$ and $\tilde{x}$ and between $y$ and $\tilde{y}$ is at most $\varepsilon$, such that 
+It says that for the program $\add{x}{y}$, the backward error with respect to $x$ and $y$ is bounded by $\varepsilon$, where $\varepsilon$ is a small number known as \emph{unit roundoff} (specific to a computer's floating-point format). Thus, there exist real numbers $\tilde{x},\tilde{y}$, where $d(x,\tilde{x}),d(y,\tilde{y})\leq\varepsilon$, such that 
 \begin{equation*}
     \add{x}{y}=\tilde{x}+\tilde{y}.
 \end{equation*}
-The smaller the backward error with respect to its inputs, the better an approximation the program. The known backward errors for these basic operations is built in to \Bean{}'s type system, but the novelty is that we can compose several of \Bean{}'s rules to determine the backward error for larger programs, such as:
+This result is a basic assumption for numerical error analysis.
+
+The smaller the backward error with respect to its inputs, the better an approximation the program. The known backward errors for basic operations is built in to \Bean{}'s type system, but the novelty is that we can compose several of \Bean{}'s rules to determine the backward error for larger programs, such as:
 \begin{mathpar}
     \inferrule*[]
     {\inferrule* { }{x:_\varepsilon\R,y:_\varepsilon\R\vdash\add{x}{y}} \\ 
      \inferrule* { }{a:_\varepsilon\R,b:_\varepsilon\R\vdash \textbf{mul}\ x\ y}}
     {x:_{2\varepsilon}\R,y:_{2\varepsilon}\R,b:_\varepsilon\R\vdash \textbf{let}\ a=\add{x}{y}\ \textbf{in}\ \textbf{mul}\ a\ b}
 \end{mathpar}
-The program $\textbf{let}\ a=\add{x}{y}\ \textbf{in}\ \textbf{mul}\ a\ b$ approximates the function $(x + y)\cdot b$ for real numbers $x,y,b$. Notice how the error accumulated for $x$ and $y$ to $2\varepsilon$, since they were calculated earlier on in the program. 
+The program $\textbf{let}\ a=\add{x}{y}\ \textbf{in}\ \textbf{mul}\ a\ b$ approximates the function $(x + y)\cdot b$ for real numbers $x,y,b$. Notice how the backward error accumulated for $x$ and $y$ to $2\varepsilon$, since they were calculated earlier on in the program. 
 
 \subsection{Linearity in \Bean}
-\Bean{} is a \emph{linear} type system, a term inspired by linear logic. In particular, context variables can't appear twice in a program. This corresponds to the fact that we can't reuse or duplicate contexts in linear logic. In the above example program, $x$, $y$, and $b$ were each used exactly once in the program. 
+\Bean{} is a \emph{linear} type system, a term inspired by linear logic. It means that context variables can't appear twice in a program. This corresponds to the fact that we can't reuse or duplicate contexts in linear logic. In the above example program, $x$, $y$, and $b$ were each used exactly once in the program. 
 
 This restriction is due to the nature of backward error. If $f$ and $g$ both have some backward error with respect to $x$, then we can find an $\tilde{x}_f$ and an $\tilde{x}_g$ such that $f(\tilde{x}_f)=\tilde{f}(x)$ and $g(\tilde{x}_g)=\tilde{g}(x)$. However, if we wanted to approximate the function $f+g$ with $\tilde{f}+\tilde{g}$, we may not be able to find a \emph{single} $\tilde{x}$ such that 
 \begin{equation*}
-    f(\tilde{x})+g(\tilde{x})=\tilde{g}(x)+\tilde{f}(x),
+    f(\tilde{x})+g(\tilde{x})=\tilde{f}(x)+\tilde{g}(x),
 \end{equation*}
 if $\tilde{x}_f\neq \tilde{x}_g$. Hence, $f(x)+g(x)$ is not guaranteed to have a backward error witness. In \Bean{}, therefore, we don't allow programs approximating $f+g$ and the like by disallowing duplicate variables.
 
-\section{The \Bel{} category}
-Now, we're going to switch gears and talk about the category, \Bel{}, which gives the semantics of the \Bean{} type system. 
+\section{The category \Bel{}}
+Now, we're going to introduce the category, \Bel{}, which gives the categorical semantics of the \Bean{} type system. 
 \begin{itemize}
-    \item The objects of \Bel{} are triples $(X, d_X,r_X)$ where $X$ is a set, $d_X:X\times X\to \R_{\geq 0}\cup\{\infty\}$ is a function giving a notion of distance, and $r_X\in\R_{\geq 0}\cup\{\infty\}$ is a constant called the \emph{slack}. 
+    \item The objects of \Bel{} are triples $(X, d,r)$ where
     \begin{itemize}
-        \item This doesn't look too much like a relation right now, but we could alternatively write $(X,d_X,r_X)$ as $\{R_\delta:\delta\in\R_{\geq 0}\}$ where $x\ R_\delta\ y\text{ if } d_X(x,y)-r_X\leq \delta$.
+        \item $X$ is a set,
+        \item $d:X\times X\to \R_{\geq 0}\cup\{\infty\}$ is a function giving a notion of distance,
+        \item and $r\in\R_{\geq 0}\cup\{\infty\}$ is a constant called the \emph{slack}. 
     \end{itemize}
-    \item Morphisms between $(X,d_X,r_X)$ and $(Y,d_Y,r_Y)$ are triples of functions $(f,\tilde{f},b)$ where $f,\tilde{f}:X\to Y$ and $b:X\times Y\rightharpoonup X$. For $x\in X$ and $y\in Y$ such that $d_Y(\tilde{f}(x),y)<\infty$, these functions must satisfy the following conditions:
+    \item Morphisms between $(X,d_X,r_X)$ and $(Y,d_Y,r_Y)$ are triples of functions $(f,\tilde{f},b)$ where $f,\tilde{f}:X\to Y$ and $b:X\times Y\to X$. For $x\in X$ and $y\in Y$, these functions must satisfy the following conditions:
     \begin{enumerate}
         \item $d_X(x,b(x,y))-r_X\leq d_Y(\tilde{f}(x),y)-d_Y$, and
         \item $f(b(x,y))=y$.
     \end{enumerate}
-    The idea is that $f$ represents an ideal function, $\tilde{f}$ represents our approximating program, and $b$ maps inputs and approximate outputs to a backward error witness, i.e. maps $x$ and $\tilde{f}(x)$ to an $\tilde{x}$. The slack becomes important later for interpreting a backward error bound.
-    \item The identity morphism for $(X,d_X,r_X)$ is $(\id_X,\id_X,\pi_2)$.
-    \item Given two morphisms $(f_1,\tilde{f}_1,b_1)$ and $(f_2,\tilde{f}_2,b_2)$, their composition is very similar to that in \DC{}. The composition of our forward maps is straightforward composition, but our backward map composition takes $(x,z)$ to $b_1(x,b_2(\tilde{f}_1(x),z))$.
+    The idea is that $f$ represents our exact mathematical function, $\tilde{f}$ represents our approximating program, and $b$ maps inputs and approximate outputs to a backward error witness, i.e. maps $x$ and $\tilde{f}(x)$ to an $\tilde{x}$. The slack becomes important later for interpreting a backward error bound. 
+    \begin{remark}
+        A morphism in \Bel{} is therefore known as a \emph{backward error lens}, where $f$ and $\tilde{f}$ are our ``get'' maps and $b$ is our ``put'' map. The two conditions are known as the first and second lens conditions.
+    \end{remark}
+    \item The identity morphism for $(X,d,r)$ is $(\id_X,\id_X,\pi_2)$.
+    \item Given two morphisms $(f_1,\tilde{f}_1,b_1)$ and $(f_2,\tilde{f}_2,b_2)$, their composition is very similar to that in \DC{}. The composition of our forward maps is ordinary function composition, but our backward map composition takes $(x,z)$ to $b_1(x,b_2(\tilde{f}_1(x),z))$.
 \end{itemize}
 In \Bel{}, we can define a symmetric monoidal product $\otimes$, but not a categorical product because we can't, as in \DC{}, define a diagonal map $\Delta:X\to X\otimes X$. This is because we would need a backward map $b:X\times X\to X$, but if we choose either projection, we won't be able to satisfy the second condition on morphisms. We do have projections in some limited cases as well as coproducts.
 
-\Bel{} has a graded comonad, $D_r$, which takes an object $(X,d_X,r_X)$ to $(X,d_X,r_X+r)$. It is the identity on morphisms. We will use this graded comonad to interpret the backward error annotations from \Bean{}.
+\Bel{} has a graded comonad, $D_p$, which takes an object $(X,d,r)$ to $(X,d,r+p)$. It is the identity on morphisms. We will use this graded comonad to interpret the backward error annotations from \Bean{}.
 
 \section{Interpretation of \Bean{} into \Bel{}}
-A well-typed program in \Bean{} corresponds to a morphism in \Bel{}. First, we interpret \Bean{} types as \Bel{} objects, e.g. $\denot{\R}=(\R,d,0)$ and $d$ is a metric on $\R$. Next, we interpret contexts as 
+\subsection{Inductive construction}
+A well-typed \Bean{} program corresponds to a morphism in \Bel{}. First, we interpret \Bean{} types as \Bel{} objects, e.g. $\denot{\R}=(\R,d,0)$ where $d$ is a metric on $\R$. Next, we interpret contexts as 
 \begin{equation*}
     \denot{\Gamma,x:_r\R}=\denot\Gamma\otimes D_r\denot\R.
 \end{equation*}
 
 \begin{theorem}
-    If $\Gamma\vdash e:\sigma$ is a \Bean{} program (where $\sigma$ is a type), then we can build a morphism from $\denot\Gamma\to\denot\sigma$.
+    If we can derive $\Gamma\vdash e:\tau$ in \Bean{}, then we can build a morphism in \Bel{} from $\denot\Gamma\to\denot\tau$.
 \end{theorem} 
-We do so using compositions of various canonical maps and by induction on the \Bean{} typing derivation. Now, we can use this categorical model to prove that \Bean{} programs satisfy the backward error condition. For example, if $x:_\varepsilon\R,y:_\varepsilon\R\vdash \add{x}{y}:\R$ is our program, we can build a morphism
-\begin{align*}
-    (f,\tilde{f},b)&:D_\varepsilon(\R,d,0)\otimes D_\varepsilon(\R,d,0)\to (\R,d,0) \\
-    &=(\R\times\R,d_\otimes,\varepsilon)\to (\R,d,0).
-\end{align*}
-These maps must satisfy the conditions on morphisms in \Bean. Remember, $f(x,y)$ represents our ideal function $x+y$ and $\tilde{f}(x,y)$ represents our approximating program $\add{x}{y}$. Now, given $x,y\in\R$, set 
-\begin{equation*}
-    (\tilde{x},\tilde{y})=b(x,y,\tilde{f}(x,y)).
-\end{equation*}
-These are our backward error witnesses because 
-\begin{equation*}
-    f(\tilde{x},\tilde{y})=\tilde{f}(x,y)
-\end{equation*}
-by condition 2, and 
-\begin{equation*}
-    d_\otimes((x,y),(\tilde{x},\tilde{y}))-\varepsilon\leq d(\tilde{f}(x,y),\tilde{f}(x,y))=0
-\end{equation*}
-by condition 1 which, by definition of $d_\otimes$, means 
-\begin{equation*}
-    d(x,\tilde{x})\leq \varepsilon\text{ and }d(y,\tilde{y})\leq \varepsilon.
-\end{equation*}
-Therefore, $\tilde{x}$ and $\tilde{y}$ are the backward error witnesses we needed to prove that the backward error of $\tilde{f}(x,y)$ with respect to $x$ and $y$ is $\varepsilon$.
+\begin{proof}
+    Just as we did for linear logic and \DC{}, we perform induction on the \Bean{} typing derivation and use compositions of various canonical maps. 
+\end{proof}
 
-\section{Goals}
-\subsection{Function spaces}
-In a functional programming language, we ideally want to be able to write, well, functions. TODO
-
-\subsection{Probabilistic programs}
-Can we think of idealized and approximate functions as probabilistic programs in our language? This would entail adding some distribution monad as part of our composition, for which we can use the coend calculus \cite{loregian2021co}. The goal is to maintain backwards error bounds even under randomized computation. To do this, we can treat these programs as effectful programs by attaching a monad to the lens-maps. 
+\subsection{Backward error soundness theorem}
+Our categorical model serves a specific purpose: to prove that well-typed \Bean{} programs satisfy the corresponding backward error guarantee. For demonstration, we use the simple program $x:_\varepsilon\R,y:_\varepsilon\R\vdash \add{x}{y}:\R$, but this proof can be generalized to all \Bean{} programs.
+\begin{theorem}
+    If we can derive $x:_\varepsilon\R,y:_\varepsilon\R\vdash \add{x}{y}:\R$ in \Bean{}, then for all inputs $x,y\in \R$, we can find backward error witnesses $\tilde{x},\tilde{y}$ such that $\add{x}{y}=\tilde{x}+\tilde{y}$ and $d(x,\tilde{x}), d(y,\tilde{y})\leq \varepsilon$.
+\end{theorem}
+\begin{proof}
+    As our program $x:_\varepsilon\R,y:_\varepsilon\R\vdash \add{x}{y}:\R$ is well-typed, we can follow the proof of Theorem 2 to build a backward error lens:
+    \begin{equation*}
+        (f,\tilde{f},b):(\R\times\R,d,\varepsilon)\to (\R,d,0).
+    \end{equation*}
+    By construction, we have $f(x,y)=x+y$ and $\tilde{f}(x,y)=\add{x}{y}$. Moreover, these maps satisfy the lens conditions. Given inputs $x,y\in\R$, set 
+    \begin{equation*}
+        (\tilde{x},\tilde{y})=b(x,y,\tilde{f}(x,y)).
+    \end{equation*}
+    These are our backward error witnesses because 
+    \begin{equation*}
+        f(\tilde{x},\tilde{y})=f(b(x,y,\tilde{f}(x,y))=\tilde{f}(x,y)
+    \end{equation*}
+    by the second lens condition, and 
+    \begin{equation*}
+        d((x,y),(\tilde{x},\tilde{y}))-\varepsilon\leq d(\tilde{f}(x,y),\tilde{f}(x,y))=0
+    \end{equation*}
+    by the first lens condition. By definition of $d$, this means
+    \begin{equation*}
+        d(x,\tilde{x})\leq \varepsilon\text{ and }d(y,\tilde{y})\leq \varepsilon.
+    \end{equation*}
+    Therefore, $\tilde{x}$ and $\tilde{y}$ are our desired backward error witnesses.
+\end{proof}
 
 \section{Conclusion}
+There are many resemblances between \DC{}, a categorical model of linear logic, and \Bel{}, the category of backward error lenses. Moreover, they each interpret a linear deductive system. The categories may not look very similar at first glance, but we are investigating whether \Bel{} could be a full subcategory of \DC{} (where \C{} is \textbf{Set}). 
+
+We can do so by rewriting a \Bel{} object $(X,d,r)$ as $(X,X,\{\alpha_i\})$ where $x~\alpha_i~y$ if $d(x,y)-r>i$. This is not exactly a \DC{} object, as we have a family of relations rather than a single relation, but we simply need to rewrite the \DC{} condition as 
+\begin{equation*}
+    \forall i,~ u~\alpha_i~F(u,y)\Rightarrow f(u)~\beta_i~y
+\end{equation*}
+and the categorical constructions still hold. Moreover, given two \DC{} objects whose relations correspond to metrics, from the modified \DC{} condition we can recover the first \Bel{} lens condition, where our forward map is the approximate map $\tilde{f}$. 
+
+Now, we need only embed the second \Bel{} lens condition into \DC{}. One possibility is by requiring that the backward map is injective in its second component. This would allow us to recover an exact \Bel{} map from a \DC{} morphism. 
+
+Once we find such an embedding, we can work directly with constructions in \DC{}, allowing us to enrich the \Bean{} type system. For example, we would immediately be able to define higher-order functions in \Bean{}, as we would have internal Homs in \Bel{}. With a little more work, we could define monads for modeling effects. In any case, the deep correspondence between \DC{} and \Bel{} is remarkable and unexpected. 
 
 \printbibliography
 
