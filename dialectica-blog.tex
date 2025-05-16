@@ -245,7 +245,7 @@ The smaller the backward error with respect to its inputs, the better an approxi
      \inferrule* { }{a:_\varepsilon\R,b:_\varepsilon\R\vdash \textbf{mul}\ x\ y}}
     {x:_{2\varepsilon}\R,y:_{2\varepsilon}\R,b:_\varepsilon\R\vdash \textbf{let}\ a=\add{x}{y}\ \textbf{in}\ \textbf{mul}\ a\ b}
 \end{mathpar}
-The program $\textbf{let}\ a=\add{x}{y}\ \textbf{in}\ \textbf{mul}\ a\ b$ approximates the function $(x + y)\cdot b$ for real numbers $x,y,b$. Notice how the backward error accumulated for $x$ and $y$ to $2\varepsilon$, since they were calculated earlier on in the program. 
+The program $\textbf{let}\ a=\add{x}{y}\ \textbf{in}\ \textbf{mul}\ a\ b$ approximates the function $(x + y)\cdot b$ for real numbers $x,y,b$. Notice how the backward error bounds accumulated for $x$ and $y$ to $2\varepsilon$, since they were calculated earlier on in the program. 
 
 \subsection{Linearity in \Bean}
 \Bean{} is a \emph{linear} type system, a term inspired by linear logic. It means that context variables can't appear twice in a program. This corresponds to the fact that we can't reuse or duplicate contexts in linear logic. In the above example program, $x$, $y$, and $b$ were each used exactly once in the program. 
@@ -254,7 +254,7 @@ This restriction is due to the nature of backward error. If $f$ and $g$ both hav
 \begin{equation*}
     f(\tilde{x})+g(\tilde{x})=\tilde{f}(x)+\tilde{g}(x),
 \end{equation*}
-if $\tilde{x}_f\neq \tilde{x}_g$. Hence, $f(x)+g(x)$ is not guaranteed to have a backward error witness. In \Bean{}, therefore, we don't allow programs approximating $f+g$ and the like by disallowing duplicate variables.
+if $\tilde{x}_f\neq \tilde{x}_g$. Hence, $\tilde{f}(x)+\tilde{g}(x)$ is not guaranteed to have a backward error witness. In \Bean{}, therefore, we don't allow programs approximating $f+g$ and the like by disallowing duplicate variables.
 
 \section{The category \Bel{}}
 Now, we're going to introduce the category, \Bel{}, which gives the categorical semantics of the \Bean{} type system. 
@@ -285,7 +285,7 @@ In \Bel{}, we can define a symmetric monoidal product $\otimes$, but not a categ
 \subsection{Inductive construction}
 A well-typed \Bean{} program corresponds to a morphism in \Bel{}. First, we interpret \Bean{} types as \Bel{} objects, e.g. $\denot{\R}=(\R,d,0)$ where $d$ is a metric on $\R$. Next, we interpret contexts as 
 \begin{equation*}
-    \denot{\Gamma,x:_r\R}=\denot\Gamma\otimes D_r\denot\R.
+    \denot{\Gamma,x:_p\R}=\denot\Gamma\otimes D_p\denot\R.
 \end{equation*}
 
 \begin{theorem}
